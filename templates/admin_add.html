@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Новый товар{% endblock %}
+{% block content %}
+  <header class="page-head"><h1>Новый товар</h1></header>
+  <form method="post" enctype="multipart/form-data" class="panel form-grid">
+    {% include '_csrf.html' %}
+    <label class="span2">Название<input class="input" name="name" value="{{ form.name }}" required></label>
+    <label>Категория (можно новую)
+      <input class="input" name="category" list="cats" value="{{ form.category }}" required>
+      <datalist id="cats">{% for c in categories %}<option value="{{ c }}">{% endfor %}</datalist>
+    </label>
+    <label>Бренд<input class="input" name="brand" value="{{ form.brand }}"></label>
+    <label>Размер
+      <select class="input" name="size">{% for s in sizes %}<option {{ 'selected' if s == form.size }}>{{ s }}</option>{% endfor %}</select>
+    </label>
+    <label>Цвет<input class="input" name="color" value="{{ form.color }}"></label>
+    <label>Цена, ₽<input class="input" name="price" inputmode="decimal" value="{{ form.price }}" required></label>
+    <label>Количество<input class="input" name="stock" inputmode="numeric" value="{{ form.stock }}" required></label>
+    <label class="span2">Фотография товара<input class="input" type="file" name="photo" accept="image/*"></label>
+    <label class="span2">Описание<textarea class="input" name="description" rows="4">{{ form.description }}</textarea></label>
+    <div class="span2 row">
+      <a class="btn btn-ghost" href="{{ url_for('catalog') }}">Отмена</a>
+      <button class="btn btn-primary">Сохранить</button>
+    </div>
+  </form>
+{% endblock %}

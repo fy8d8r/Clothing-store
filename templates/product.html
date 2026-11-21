@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}{{ p.name }}{% endblock %}
+{% block content %}
+  <a class="muted back" href="{{ url_for('catalog') }}">← В каталог</a>
+  <div class="detail">
+    <div class="detail-photo">
+      {% if p.image_path %}
+        <img src="{{ url_for('product_photo', pid=p.id, v=p.image_path|filename) }}" alt="{{ p.name }}">
+      {% else %}<span class="ph big">{{ (p.name[:1] or '?')|upper }}</span>{% endif %}
+    </div>
+    <div class="detail-info">
+      <h1>{{ p.name }}</h1>
+      <div class="muted">{{ p.brand or 'Без бренда' }} · {{ p.category }}</div>
+      <div class="price big">{{ p.price|money }}</div>
+      <dl class="facts">
+        <dt>Размер</dt><dd>{{ p.size }}</dd>
+        <dt>Цвет</dt><dd>{{ p.color or '—' }}</dd>
+        <dt>На складе</dt><dd>{{ p.stock }}</dd>
+      </dl>
+      <p>{{ p.description or 'Описание не указано.' }}</p>
+      <form method="post" action="{{ url_for('cart_add', pid=p.id) }}">
+        {% include '_csrf.html' %}<input type="hidden" name="next" value="{{ request.full_path }}">
+        <button class="btn btn-primary" {{ 'disabled' if p.stock <= 0 }}>В корзину{% if in_cart %} (уже {{ in_cart }}){% endif %}</button>
+      </form>
+
+      {% if user.role == 'admin' %}
+        <hr>
+        <form method="post" action="{{ url_for('product_photo_change', pid=p.id) }}" enctype="multipart/form-data" class="stack">
+          {% include '_csrf.html' %}
+          <label>Изменить фото<input class="input" type="file" name="photo" accept="image/*" required></label>
+          <button class="btn btn-ghost">Загрузить фото</button>
+        </form>
+        <form method="post" action="{{ url_for('product_delete', pid=p.id) }}" data-confirm="Удалить товар «{{ p.name }}»?">
+          {% include '_csrf.html' %}
+          <button class="btn btn-danger-ghost">Удалить товар</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

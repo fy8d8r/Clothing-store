@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Корзина{% endblock %}
+{% block content %}
+  <header class="page-head"><h1>Ваша корзина</h1></header>
+  {% if lines %}
+    <div class="cart">
+      {% for p, qty in lines %}
+        <div class="line">
+          <div class="thumb">
+            {% if p.image_path %}<img src="{{ url_for('product_photo', pid=p.id, v=p.image_path|filename) }}" alt="">
+            {% else %}<span class="ph">{{ (p.name[:1] or '?')|upper }}</span>{% endif %}
+          </div>
+          <div class="line-info">
+            <a href="{{ url_for('product', pid=p.id) }}"><strong>{{ p.name }}</strong></a>
+            <div class="muted small">{{ p.price|money }} · размер {{ p.size }}</div>
+          </div>
+          <form method="post" action="{{ url_for('cart_update', pid=p.id) }}" class="stepper">
+            {% include '_csrf.html' %}
+            <button class="btn btn-ghost sq" name="action" value="dec" aria-label="Меньше">−</button>
+            <span class="qty">{{ qty }}</span>
+            <button class="btn btn-ghost sq" name="action" value="inc" aria-label="Больше">+</button>
+          </form>
+          <div class="line-sum">{{ (p.price * qty)|money }}</div>
+          <form method="post" action="{{ url_for('cart_update', pid=p.id) }}">
+            {% include '_csrf.html' %}
+            <button class="btn btn-danger-ghost sq" name="action" value="remove" aria-label="Убрать">✕</button>
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="summary">
+      <div class="total">Итого: <strong>{{ total|money }}</strong></div>
+      <div class="row">
+        <form method="post" action="{{ url_for('cart_clear') }}">{% include '_csrf.html' %}<button class="btn btn-ghost">Очистить</button></form>
+        <form method="post" action="{{ url_for('cart_checkout') }}" data-confirm="Оформить заказ и списать товары со склада?">
+          {% include '_csrf.html' %}<button class="btn btn-primary">Оформить заказ</button>
+        </form>
+      </div>
+    </div>
+  {% else %}
+    <div class="empty">Корзина пока пуста.<br><a class="btn btn-primary" href="{{ url_for('catalog') }}">Перейти в каталог</a></div>
+  {% endif %}
+{% endblock %}

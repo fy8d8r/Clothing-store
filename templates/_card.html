@@ -1,0 +1,31 @@
+<article class="card">
+  <a class="photo" href="{{ url_for('product', pid=p.id) }}">
+    {% if p.image_path %}
+      <img src="{{ url_for('product_photo', pid=p.id, v=p.image_path|filename) }}" alt="{{ p.name }}" loading="lazy">
+    {% else %}
+      <span class="ph">{{ (p.name[:1] or '?')|upper }}</span>
+    {% endif %}
+  </a>
+  <div class="card-body">
+    <h3><a href="{{ url_for('product', pid=p.id) }}">{{ p.name }}</a></h3>
+    <div class="muted small">{{ p.brand or 'Без бренда' }} · {{ p.category }} · {{ p.size }}</div>
+    <div class="price">{{ p.price|money }}</div>
+    {% if p.stock <= 0 %}<div class="stock out">Нет в наличии</div>
+    {% elif p.stock <= 3 %}<div class="stock low">Осталось {{ p.stock }} шт.</div>
+    {% else %}<div class="stock">В наличии: {{ p.stock }}</div>{% endif %}
+  </div>
+  <div class="card-actions">
+    <a class="btn btn-ghost" href="{{ url_for('product', pid=p.id) }}">Подробнее</a>
+    <form method="post" action="{{ url_for('cart_add', pid=p.id) }}">
+      {% include '_csrf.html' %}<input type="hidden" name="next" value="{{ request.full_path }}">
+      <button class="btn btn-primary block" {{ 'disabled' if p.stock <= 0 }}>В корзину</button>
+    </form>
+  </div>
+  {% if user.role == 'admin' %}
+    <form method="post" action="{{ url_for('product_delete', pid=p.id) }}" class="card-admin"
+          data-confirm="Удалить товар «{{ p.name }}»?">
+      {% include '_csrf.html' %}<input type="hidden" name="next" value="{{ request.full_path }}">
+      <button class="btn btn-danger-ghost block">Удалить товар</button>
+    </form>
+  {% endif %}
+</article>

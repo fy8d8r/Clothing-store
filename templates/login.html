@@ -1,0 +1,13 @@
+{% extends 'auth_base.html' %}
+{% block form %}
+  <h2>Добро пожаловать</h2>
+  <p class="muted">Войдите, чтобы открыть каталог</p>
+  <form method="post" class="stack">
+    {% include '_csrf.html' %}
+    <input class="input" name="username" placeholder="Логин" autocomplete="username" required autofocus>
+    <input class="input" type="password" name="password" placeholder="Пароль" autocomplete="current-password" required>
+    <button class="btn btn-primary block">Войти</button>
+    <a class="btn btn-ghost block" href="{{ url_for('register') }}">Создать аккаунт</a>
+  </form>
+  <p class="muted small center">Демо: admin / admin123 · user / user123</p>
+{% endblock %}

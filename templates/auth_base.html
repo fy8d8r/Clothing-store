@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ru" data-mode="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Вход{% endblock %} — Style Store</title>
+  <style>:root{ {% for k, v in pal.items() %}--{{ k|replace('_', '-') }}:{{ v }};{% endfor %} }</style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+<div class="auth">
+  <section class="auth-hero">
+    <div><h1>STYLE<br>STORE</h1><p>Одежда, в которой удобно жить</p></div>
+  </section>
+  <section class="auth-form">
+    <div class="auth-card">
+      {% include '_flash.html' %}
+      {% block form %}{% endblock %}
+    </div>
+  </section>
+</div>
+</body>
+</html>

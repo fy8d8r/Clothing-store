@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block side_extra %}
+  <form id="filters" method="get" action="{{ url_for('catalog') }}" class="filters">
+    <label>Поиск<input class="input" type="text" name="q" value="{{ f.q }}" autocomplete="off"></label>
+    <label>Категория
+      <select class="input" name="category">
+        <option value="">Все</option>
+        {% for c in categories %}<option value="{{ c }}" {{ 'selected' if c == f.category }}>{{ c }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Размер
+      <select class="input" name="size">
+        <option value="">Все</option>
+        {% for s in sizes %}<option value="{{ s }}" {{ 'selected' if s == f.size }}>{{ s }}</option>{% endfor %}
+      </select>
+    </label>
+    <div class="cap">Цена, ₽ (от — до)</div>
+    <div class="two">
+      <input class="input" type="text" inputmode="decimal" name="pmin" value="{{ f.pmin }}" aria-label="Цена от">
+      <input class="input" type="text" inputmode="decimal" name="pmax" value="{{ f.pmax }}" aria-label="Цена до">
+    </div>
+    <label class="check"><input type="checkbox" name="stock" value="1" {{ 'checked' if f.stock }}> Только в наличии</label>
+    <button class="btn btn-primary block apply">Применить</button>
+    <a class="btn btn-ghost block" href="{{ url_for('catalog') }}">Сбросить фильтры</a>
+  </form>
+{% endblock %}
+
+{% block content %}
+  <header class="page-head">
+    <div><h1>Каталог</h1></div>
+    {% if user.role == 'admin' %}<a class="btn btn-ghost" href="{{ url_for('admin_add') }}">+ Добавить товар</a>{% endif %}
+  </header>
+  <div id="results">
+    <p class="muted count">{% if price_error %}Цена в фильтре должна быть числом{% else %}Найдено товаров: {{ rows|length }}{% endif %}</p>
+    {% if rows %}
+      <div class="grid">{% for p in rows %}{% include '_card.html' %}{% endfor %}</div>
+    {% else %}
+      <div class="empty">Ничего не найдено.<br>Измените поиск или фильтры.</div>
+    {% endif %}
+  </div>
+{% endblock %}
