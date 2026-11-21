@@ -1,4 +1,3 @@
-# Style Store — магазин одежды (Flask)
 
 Веб-приложение магазина одежды. Работает на SQLite (по умолчанию, ничего ставить не нужно)
 или на MySQL (через `config.ini`).
@@ -24,34 +23,3 @@ python app.py
 Скопируйте `config.example.ini` в `config.ini`, поставьте `backend = mysql` и впишите данные сервера.
 Таблицы и демо-данные создаются автоматически.
 
-## Структура
-```
-app.py              веб-приложение (маршруты, защита, корзина)
-templates/          HTML-шаблоны (Jinja2)
-static/             style.css, app.js
-store/              слой данных: db.py, images.py, theme.py, security.py, config.py
-product_images/     загруженные фото (создаётся сам)
-instance/           ключ подписи сессий (создаётся сам, в git не попадает)
-tests/test_web.py   тесты:  python -m unittest tests.test_web -v
-```
-
-## Безопасность
-CSRF-токены во всех POST-формах, экранирование HTML (Jinja2), параметризованные SQL-запросы,
-проверка прав администратора на сервере, редиректы только внутри сайта, заголовки CSP и nosniff,
-cookie сессии HttpOnly + SameSite=Lax, лимит размера фото 12 МБ, фото перекодируются в JPEG.
-
-## Публикация на сервере
-Встроенный сервер `python app.py` — только для разработки. Для постоянной работы:
-```bash
-pip install waitress
-waitress-serve --listen=0.0.0.0:8000 --call app:create_app
-```
-Ключ сессий можно задать переменной окружения `SHOP_SECRET_KEY`. Включите HTTPS (например, через nginx/Caddy).
-
-## Git
-```bash
-git add .
-git commit -m "Описание изменений"
-git push
-```
-`config.ini`, `shop.db`, `instance/` и `product_images/` в репозиторий не попадают (см. `.gitignore`).
