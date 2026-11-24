@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ru" data-mode="{{ mode }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Каталог{% endblock %} — Style Store</title>
+  <style>:root{ {% for k, v in pal.items() %}--{{ k|replace('_', '-') }}:{{ v }};{% endfor %} }</style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <a class="brand" href="{{ url_for('catalog') }}">Style Store</a>
+    <div class="who">{{ user.username }} · {{ 'администратор' if user.role == 'admin' else 'покупатель' }}</div>
+
+    <nav class="nav">
+      <a class="{{ 'on' if request.endpoint in ('catalog', 'product') }}" href="{{ url_for('catalog') }}">Каталог</a>
+      <a class="{{ 'on' if request.endpoint == 'cart' }}" href="{{ url_for('cart') }}">Корзина <span class="badge">{{ cart_count }}</span></a>
+      {% if user.role == 'admin' %}
+        <a class="{{ 'on' if request.endpoint == 'admin_add' }}" href="{{ url_for('admin_add') }}">+ Добавить товар</a>
+        <a class="{{ 'on' if request.endpoint == 'admin_prices' }}" href="{{ url_for('admin_prices') }}">Пересчёт цен</a>
+      {% endif %}
+    </nav>
+
+    {% block side_extra %}{% endblock %}
+
+    <div class="side-bottom">
+      <div class="cap">Оформление</div>
+      <form method="post" action="{{ url_for('theme') }}" class="swatches">
+        {% include '_csrf.html' %}<input type="hidden" name="next" value="{{ request.full_path }}">
+        {% for c in presets %}
+          <button class="swatch {{ 'on' if c == user.theme_color }}" style="--c:{{ c }}" name="color" value="{{ c }}" title="{{ c }}" aria-label="Цвет {{ c }}"></button>
+        {% endfor %}
+      </form>
+      <form method="post" action="{{ url_for('theme') }}" class="row">
+        {% include '_csrf.html' %}<input type="hidden" name="next" value="{{ request.full_path }}">
+        <input type="color" name="color" value="{{ user.theme_color }}" data-autosubmit aria-label="Свой цвет">
+        <span class="muted small">Свой цвет</span>
+      </form>
+      <form method="post" action="{{ url_for('theme') }}">
+        {% include '_csrf.html' %}<input type="hidden" name="next" value="{{ request.full_path }}">
+        <input type="hidden" name="dark" value="{{ 0 if mode == 'dark' else 1 }}">
+        <button class="btn btn-ghost block">{{ 'Светлая тема' if mode == 'dark' else 'Тёмная тема' }}</button>
+      </form>
+      <form method="post" action="{{ url_for('logout') }}">
+        {% include '_csrf.html' %}
+        <button class="btn btn-ghost block">Выйти</button>
+      </form>
+    </div>
+  </aside>
+
+  <main class="main">
+    {% include '_flash.html' %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Пересчёт цен{% endblock %}
+{% block content %}
+  <header class="page-head"><h1>Пересчёт цен</h1></header>
+  <p class="muted">Все товары с ценой <strong>ниже</strong> минимальной получат итоговую цену. Остальные цены не меняются.<br>
+    Например: min = 250, итог = 500 — цены 100 ₽ и 200 ₽ станут 500 ₽, а 1100 ₽ останется прежней.</p>
+
+  <form method="get" action="{{ url_for('admin_prices') }}" class="panel price-form">
+    <label>Минимальная цена, ₽ (min)
+      <input class="input" name="min" inputmode="decimal" value="{{ raw.min }}" placeholder="250" required></label>
+    <label>Итоговая цена, ₽ (итог)
+      <input class="input" name="total" inputmode="decimal" value="{{ raw.total }}" placeholder="500" required></label>
+    <button class="btn btn-ghost">Показать, что изменится</button>
+  </form>
+
+  {% if problem %}<div class="flash error">{{ problem }}</div>{% endif %}
+
+  {% if shown and not problem %}
+    <h2>Будет изменено товаров: {{ preview|length }}</h2>
+    {% if preview %}
+      <table class="table">
+        <thead><tr><th>Товар</th><th class="num">Было</th><th class="num">Станет</th></tr></thead>
+        <tbody>
+          {% for p in preview %}
+            <tr><td>{{ p.name }}</td><td class="num old">{{ p.price|money }}</td><td class="num new">{{ values.total|money }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <form method="post" action="{{ url_for('admin_prices') }}"
+            data-confirm="Изменить цену у {{ preview|length }} товаров на {{ values.total|money }}?">
+        {% include '_csrf.html' %}
+        <input type="hidden" name="min" value="{{ values.min }}">
+        <input type="hidden" name="total" value="{{ values.total }}">
+        <button class="btn btn-primary">Пересчёт</button>
+      </form>
+    {% else %}
+      <div class="empty">Нет товаров с ценой ниже {{ values.min|money }} — менять нечего.</div>
+    {% endif %}
+  {% endif %}
+{% endblock %}
